@@ -10,7 +10,6 @@ import ast
 import importlib
 import logging
 import os
-import sys
 from pathlib import Path
 import shutil
 
@@ -19,6 +18,8 @@ import astunparse
 logger = logging.getLogger(__name__)
 
 DEFAULT_PACKAGE_PATH = "venv/lib/python3.7/site-packages"
+TARGETS = ["boto3-stubs/__init__.py", "boto3-stubs/__init__.pyi", "boto3-stubs/session.pyi"]
+ORIG_PREFIX = ".orig"
 
 
 def main():
@@ -32,8 +33,6 @@ def main():
     package_path = args.package_path
 
     # list up target files
-    TARGETS = ["boto3-stubs/__init__.py", "boto3-stubs/__init__.pyi", "boto3-stubs/session.pyi"]
-    ORIG_PREFIX = ".orig"
     target_path_list = [Path(package_path) / t for t in TARGETS]
     orig_path_list = [Path(package_path) / (t + ORIG_PREFIX) for t in TARGETS]
 
@@ -74,11 +73,11 @@ def parse_known_modules(ast_tree) -> set:
 
 
 def convert_ast_body(known_modules: set, ast_body: list) -> list:
-    return list(filter(None, map(known_overload(known_modules), ast_body)))
+    return list(filter(None, map(map_unknown_to_none(known_modules), ast_body)))
 
 
-def known_overload(known_modules: set):
-    def _known_overload(ast_obj):
+def map_unknown_to_none(known_modules: set):
+    def _map_unknown_to_none(ast_obj):
         # convert Session class
         if isinstance(ast_obj, ast.ClassDef) and ast_obj.name == "Session":
             ast_obj.body = convert_ast_body(known_modules, ast_obj.body)
@@ -92,7 +91,7 @@ def known_overload(known_modules: set):
 
         # examine the target return type
         return ast_obj if ast_obj.returns.id in known_modules else None
-    return _known_overload
+    return _map_unknown_to_none
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-# boto3-stub-reducer
+# boto3-stubs-reducer
 
 スタブを必要なものだけに減らすスクリプトのテスト
 
