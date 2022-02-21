@@ -35,7 +35,8 @@ def main():
 
     # list up target files
     target_path_list = [Path(package_path) / t for t in TARGETS]
-    orig_path_list = [Path(package_path) / (t + ORIG_PREFIX) for t in TARGETS]
+    target_path_list = [p for p in target_path_list if p.exists()]  # only for existing files
+    orig_path_list = [Path(str(p) + ORIG_PREFIX) for p in target_path_list]
 
     # keep original files
     for t_path, orig_path in zip(target_path_list, orig_path_list):
