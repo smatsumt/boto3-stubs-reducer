@@ -57,6 +57,11 @@ def main():
 
 
 def parse_known_modules(ast_tree) -> set:
+    """
+    Return known modules parsing __init__.pyi
+
+    Invest known modules by importing mypy modules in __init__.pyi
+    """
     result = set()
     for ast_obj in ast_tree.body:
         if isinstance(ast_obj, ast.Import):
@@ -76,10 +81,19 @@ def parse_known_modules(ast_tree) -> set:
 
 
 def convert_ast_body(known_modules: set, ast_body: list) -> list:
+    """
+    Convert parsed AST with deleting unknown modules (it means mypy is not installed)
+    """
     return list(filter(None, map(map_unknown_to_none(known_modules), ast_body)))
 
 
 def map_unknown_to_none(known_modules: set):
+    """
+    Return ast_obj filtering function
+
+    Filters out with @overload function returning invalid (mypy is not installed) class.
+    Assume "import" statement is top-level (not inside try block)
+    """
     def _map_unknown_to_none(ast_obj):
         # convert Session class
         if isinstance(ast_obj, ast.ClassDef) and ast_obj.name == "Session":
