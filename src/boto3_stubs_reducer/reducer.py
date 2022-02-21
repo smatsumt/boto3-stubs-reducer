@@ -53,6 +53,10 @@ def main():
         ast_tree = ast.parse(orig_path.read_text(), str(orig_path))
         ast_tree.body = convert_ast_body(known_modules, ast_tree.body)
         t_path.write_text(REDUCER_HEADER + astunparse.unparse(ast_tree))
+        print(f"reduce {t_path}")
+
+    # finished!
+    print(f"Replacing boto3-stubs successfully.")
 
 
 def parse_known_modules(ast_tree) -> set:
