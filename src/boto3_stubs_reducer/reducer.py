@@ -31,10 +31,13 @@ def main():
 
     logging.basicConfig(level=args.log_level)
 
-    package_path = args.package_path or default_lib_path()
+    main_reduce(args.package_path)
 
+
+def main_reduce(package_path: str) -> None:
+    package_path_ = package_path or default_lib_path()
     # list up target files
-    target_path_list = [Path(package_path) / t for t in TARGETS]
+    target_path_list = [Path(package_path_) / t for t in TARGETS]
     target_path_list = [p for p in target_path_list if p.exists()]  # only for existing files
     orig_path_list = [Path(str(p) + ORIG_PREFIX) for p in target_path_list]
 
